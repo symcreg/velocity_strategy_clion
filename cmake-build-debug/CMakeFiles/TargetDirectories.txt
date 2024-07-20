@@ -1,0 +1,3 @@
+E:/projects/clion/velocity_strategy/cmake-build-debug/CMakeFiles/velocity_strategy.dir
+E:/projects/clion/velocity_strategy/cmake-build-debug/CMakeFiles/edit_cache.dir
+E:/projects/clion/velocity_strategy/cmake-build-debug/CMakeFiles/rebuild_cache.dir
