@@ -10,20 +10,27 @@
 using namespace std;
 Position current_position;
 Position *target_positions;
-uint16_t current_control_point_id = 0;
+float *distanceBetweenTargets;
+float *thetaBetweenTargets;
+float initDistance;
+float initTheta;
+uint8_t current_control_point_id;
 float current_theta = 0;
 uint16_t distance2target;
 uint16_t distance2targetLast;
 uint16_t distance2targetNext;
 
+Position init_position = {0, 0, 0, 0};
 static uint16_t get_distance(Position &p1, Position &p2);
 static float get_theta(Position &p1, Position &p2);
 static bool is_target_overlapping(vector<Position> &v, Position &p);
 void init_targets(){
     target_positions = new Position[TARGET_NUM];
+    distanceBetweenTargets = new float[TARGET_NUM - 1];
+    thetaBetweenTargets = new float[TARGET_NUM - 1];
     vector<Position> v;
     srand(time(NULL));
-    for(int i = 0; i < TARGET_NUM; i++){
+    for(int i = 0; i < TARGET_NUM - 1; i++){
         target_positions[i].id = i;
         //防止目标点出现在地图边缘
         target_positions[i].x = rand() % (MAP_SIZE - 2 * TARGET_RADIUS) + TARGET_RADIUS;
@@ -33,6 +40,40 @@ void init_targets(){
             target_positions[i].y = rand() % (MAP_SIZE - 2 * TARGET_RADIUS) + TARGET_RADIUS;
         }
         v.push_back(target_positions[i]);
+    }
+    target_positions[TARGET_NUM - 1].id = TARGET_NUM - 1;
+    target_positions[TARGET_NUM - 1].x = init_position.x;
+    target_positions[TARGET_NUM - 1].y = init_position.y;
+
+    initDistance  = get_distance(init_position, target_positions[0]);
+    initTheta = get_theta(init_position, target_positions[0]);
+    for(int i = 0; i < TARGET_NUM - 1; i++){
+        distanceBetweenTargets[i] = get_distance(target_positions[i], target_positions[i + 1]);
+        thetaBetweenTargets[i] = get_theta(target_positions[i], target_positions[i + 1]);
+    }
+}
+void init_targets_manual(vector<Position> &target_positions_manual){
+    if(target_positions_manual.size() != TARGET_NUM - 1){
+        return;
+    }
+    target_positions = new Position[TARGET_NUM];
+    distanceBetweenTargets = new float[TARGET_NUM - 1];
+    thetaBetweenTargets = new float[TARGET_NUM - 1];
+    for(int i = 0; i < TARGET_NUM - 1; i++){
+        target_positions[i].id = target_positions_manual[i].id;
+        target_positions[i].x = target_positions_manual[i].x;
+        target_positions[i].y = target_positions_manual[i].y;
+        cout<<"-Target "<<i<<" position update - position ("<<target_positions[i].x<<", "<<target_positions[i].y<<")"<<endl;
+    }
+    target_positions[TARGET_NUM - 1].id = TARGET_NUM - 1;
+    target_positions[TARGET_NUM - 1].x = init_position.x;
+    target_positions[TARGET_NUM - 1].y = init_position.y;
+
+    initDistance  = get_distance(init_position, target_positions[0]);
+    initTheta = get_theta(init_position, target_positions[0]);
+    for(int i = 0; i < TARGET_NUM - 1; i++){
+        distanceBetweenTargets[i] = get_distance(target_positions[i], target_positions[i + 1]);
+        thetaBetweenTargets[i] = get_theta(target_positions[i], target_positions[i + 1]);
     }
 }
 void update_control_point(){
@@ -47,12 +88,12 @@ void update_control_point(){
 void update_distances(){
     distance2target = get_distance(current_position, target_positions[current_control_point_id]);
     if(current_control_point_id == 0){
-        distance2targetLast = get_distance(current_position, target_positions[TARGET_NUM - 1]);
+        distance2targetLast = get_distance(current_position, init_position);
     }else{
         distance2targetLast = get_distance(current_position, target_positions[current_control_point_id - 1]);
     }
     if(current_control_point_id == TARGET_NUM - 1){
-        distance2targetNext = get_distance(current_position, target_positions[0]);
+        distance2targetNext = get_distance(current_position, init_position);
     }else{
         distance2targetNext = get_distance(current_position, target_positions[current_control_point_id + 1]);
     }
@@ -82,4 +123,6 @@ bool is_target_overlapping(vector<Position> &v, Position &p){
 }
 void delete_targets(){
     delete[] target_positions;
+    delete[] distanceBetweenTargets;
+    delete[] thetaBetweenTargets;
 }

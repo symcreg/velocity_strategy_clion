@@ -10,15 +10,26 @@
 #define MAP_SIZE 500
 
 #include <stdint.h>
+#include <vector>
+using namespace std;
 typedef struct{
+    uint8_t isTarget;
     int16_t id;
     float x;
     float y;
 }Position;
 extern Position current_position;
 extern Position  *target_positions;
-
+extern float *distanceBetweenTargets;
+extern float *thetaBetweenTargets;
+extern float initDistance;
+extern float initTheta;
+extern uint8_t current_control_point_id;
+extern uint16_t distance2target;
+extern uint16_t distance2targetLast;
+extern uint16_t distance2targetNext;
 void init_targets();
+void init_targets_manual(vector<Position> &target_positions_manual);
 void delete_targets();
 
 void update_control_point();

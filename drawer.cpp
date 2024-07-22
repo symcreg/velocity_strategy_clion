@@ -23,7 +23,7 @@ void draw_current_position(){
     rectangle(map_img, Point(current_position.x - 2, current_position.y - 2), Point(current_position.x + 5, current_position.y + 5), Scalar(0, 255, 0), -1);
 }
 void draw_velocity(){
-    if(current_time * 5 > MAP_SIZE){
+    if(current_time * 2 > MAP_SIZE){
         velocity_img = Mat::zeros(MAP_SIZE, MAP_SIZE, CV_8UC3);
         current_time = 0;
     }
